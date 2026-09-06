@@ -35,8 +35,20 @@ orl.get_timeseries(sim, ["TYPE_MOTOR_MASS"])
 ```
 
 Flight *events* degrade gracefully in the other direction: event types
-orlab doesn't know are skipped by `get_events` with a logged warning, never
-a crash. On 24.12, expect `SIM_WARN` events for simulation warnings and
+orlab doesn't know are left out of `get_events` rather than crashing. They
+are not dropped in silence -- their Java names are on the result, so a
+caller can tell "this simulation had no such event" from "orlab could not
+interpret it":
+
+```python
+events = orl.get_events(sim)
+if events.unknown_event_types:
+    print("not interpreted:", sorted(events.unknown_event_types))
+```
+
+The result is still a plain mapping, so indexing it is unchanged. A warning
+is logged once per name too, but the log can be silenced and the field
+cannot. On 24.12, expect `SIM_WARN` events for simulation warnings and
 `SIM_ABORT` where older versions raised exceptions.
 
 ## Newer releases than orlab knows

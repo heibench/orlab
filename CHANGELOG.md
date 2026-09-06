@@ -9,6 +9,15 @@ reconstructed from the git log.
 
 ### Added
 
+- `Helper.get_events()` now returns an `EventTimes` mapping carrying
+  `unknown_event_types`: the Java event-type names this orlab version has no
+  enum member for and therefore left out. Previously they were dropped with
+  only a log line, so a caller could not tell "this simulation had no such
+  event" from "orlab did not recognise the event", and an application that
+  raised its log level saw nothing at all. Likeliest exactly when
+  `OpenRocketInstance.profile_exact` is `False`. `EventTimes` is a `dict`
+  subclass, so indexing and comparison are unchanged.
+
 - `OpenRocketInstance.profile_exact`: `True` when a profile for the jar's
   exact version is checked in, `False` when orlab fell back to the nearest
   older profile because it does not know that release. The fallback was
