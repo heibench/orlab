@@ -1,6 +1,6 @@
 site_name: orlab
 site_description: Script OpenRocket from Python — simulations, listeners, and flight data via JPype
-site_url: https://heibench.github.io/orlab/
+site_url: https://heibench.com/orlab/
 repo_url: https://github.com/heibench/orlab
 repo_name: heibench/orlab
 
