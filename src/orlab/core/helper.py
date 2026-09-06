@@ -14,9 +14,33 @@ from .openrocket_instance import OpenRocketInstance
 from .simulation_listener import AbstractSimulationListener
 from .summary import FlightSummary, _bearing_deg, _mean_descent_rate, _value_at, _window_stats
 
-__all__ = ["Helper"]
+__all__ = ["EventTimes", "Helper"]
 
 logger = logging.getLogger(__name__)
+
+
+class EventTimes(dict[FlightEvent, list[float]]):
+    """Event times keyed by type, plus the types this orlab could not interpret.
+
+    A plain ``dict`` cannot tell "the simulation had no such event" from "orlab
+    did not recognise the event and dropped it". The second is likeliest exactly
+    when :attr:`OpenRocketInstance.profile_exact` is ``False`` -- a newer
+    OpenRocket on a nearest-older profile is where unknown event types appear --
+    so it has to be readable from the result, not only from a log line an
+    application can silence by raising its level.
+
+    This is a ``dict``, so callers that only index it are unaffected.
+    """
+
+    def __init__(
+        self,
+        events: dict[FlightEvent, list[float]] | None = None,
+        unknown: Iterable[str] = (),
+    ) -> None:
+        super().__init__(events or {})
+        self.unknown_event_types: frozenset[str] = frozenset(unknown)
+        """Java event-type names dropped because this orlab has no enum member for them."""
+
 
 # names already warned about in this process: version-absence warnings fire
 # once, not once per summary, so dispersion loops stay readable
@@ -181,10 +205,14 @@ class Helper:
                 f"Unknown flight event type {name!r} from the loaded OpenRocket version"
             ) from None
 
-    def get_events(self, simulation, branch_number: int = 0) -> dict[FlightEvent, list[float]]:
-        """Returns a dictionary of all the flight events in a given simulation.
-        Key is FlightEvent and value is a list of all the times at which the event occurs.
-        Event types not known to this orlab version are skipped with a warning.
+    def get_events(self, simulation, branch_number: int = 0) -> EventTimes:
+        """Returns the flight events in a given simulation, keyed by FlightEvent,
+        with a list of all the times at which each event occurs.
+
+        Event types this orlab version does not know are not in the mapping. Their
+        Java names are on :attr:`EventTimes.unknown_event_types`, so a caller can
+        tell a simulation that had no such event from one whose event orlab could
+        not interpret. A warning is also logged once per name.
 
         :param branch_number: Stage branch to read (0 = sustainer).
         """
@@ -202,7 +230,7 @@ class Helper:
                 continue
             output[event] = times
 
-        return output
+        return EventTimes(output, unknown)
 
     @staticmethod
     def _events_by_name(branch) -> dict[str, list[float]]:

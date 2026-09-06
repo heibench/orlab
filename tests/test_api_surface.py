@@ -3,6 +3,7 @@ def test_public_surface_stable():
 
     assert sorted(orlab.__all__) == [
         "AbstractSimulationListener",
+        "EventTimes",
         "FlightDataType",
         "FlightEvent",
         "FlightSummary",
