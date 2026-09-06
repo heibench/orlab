@@ -7,6 +7,8 @@ reconstructed from the git log.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-06
+
 ### Added
 
 - `Helper.get_events()` now returns an `EventTimes` mapping carrying

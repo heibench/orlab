@@ -1,6 +1,6 @@
 [project]
 name = "orlab"
-version = "0.10.0.dev0"
+version = "0.10.0"
 description = "Interact and script with OpenRocket from Python via JPype, with enhanced capabilities for simulations and computational workflows"
 readme = "README.md"
 requires-python = ">=3.10"
