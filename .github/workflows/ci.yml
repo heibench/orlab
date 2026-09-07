@@ -117,3 +117,29 @@ jobs:
         run: |
           uv sync
           uv run pytest -q -m integration tests/integration
+
+  # The ONLY job branch protection requires. Add every new job to `needs:` here
+  # rather than to the protection settings, so CI can evolve without touching
+  # repository configuration.
+  #
+  # It requires SUCCESS rather than testing for failure. `contains(needs.*.result,
+  # 'failure')` does not match 'skipped', so an `if: false` on a real job produces a
+  # fully green pull request with nothing checked -- measured in a sibling repo.
+  # This workflow has no path filtering, so no job here skips legitimately; a repo
+  # that does filter needs the tolerant form instead.
+  ok:
+    name: ok
+    if: always()
+    needs: [check, test, integration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail unless every upstream job succeeded
+        if: >-
+          needs.check.result != 'success' ||
+          needs.test.result != 'success' ||
+          needs.integration.result != 'success'
+        run: exit 1
+      - name: Pass
+        run: echo 'All checks passed'
+
