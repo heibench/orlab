@@ -7,6 +7,14 @@ reconstructed from the git log.
 
 ## [Unreleased]
 
+### Changed
+
+- `requires-python` raised to `>=3.11`. Python 3.10 reached end of life in
+  October 2026 with 3.10.22, and Pillow 13.0.0, the only release carrying the
+  fixes for the Pillow advisories open against the lock (GHSA-w889-685w-c8fh
+  among them), requires 3.11. orlab's own dependencies are unchanged; Pillow
+  reaches the lock only through the `examples` group's matplotlib.
+
 ## [0.10.0] - 2026-09-06
 
 ### Added

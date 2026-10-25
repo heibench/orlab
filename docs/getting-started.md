@@ -2,7 +2,7 @@
 
 ## Install
 
-1. **The package** (Python 3.10+):
+1. **The package** (Python 3.11+):
 
     ```
     pip install orlab

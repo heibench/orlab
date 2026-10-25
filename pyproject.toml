@@ -3,7 +3,7 @@ name = "orlab"
 version = "0.10.0"
 description = "Interact and script with OpenRocket from Python via JPype, with enhanced capabilities for simulations and computational workflows"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "GPL-2.0-only"
 authors = [
     {name = "Cameron Brooks", email = "cambrooks3393@gmail.com"}
@@ -45,7 +45,7 @@ build-backend = "hatchling.build"
 packages = ["src/orlab"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]

@@ -36,12 +36,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 3.10 enforces the requires-python floor (mypy only checks the dev
+        # 3.11 enforces the requires-python floor (mypy only checks the dev
         # interpreter). The windows cell is the only automated check of the
         # spawn/pickle/path/file-handling code on a platform the README
         # claims; the jar-free unit suite needs no JDK or compiler there.
         os: [ubuntu-latest]
-        python-version: ["3.10", "3.14"]
+        python-version: ["3.11", "3.14"]
         include:
           - os: windows-latest
             python-version: "3.14"
