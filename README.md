@@ -66,7 +66,7 @@ e.g. `orl.get_timeseries(sim, ["TYPE_SOME_NEW_TYPE"])`.
 
 ## Installation
 
-1. **Install the package** (Python 3.10+)
+1. **Install the package** (Python 3.11+)
 
    ```
    pip install orlab
