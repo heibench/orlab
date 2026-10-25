@@ -133,6 +133,8 @@ jobs:
     needs: [check, test, integration]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Reads only `needs` results; no checkout, no API call, so no token scope.
+    permissions: {}
     steps:
       - name: Fail unless every upstream job succeeded
         if: >-
