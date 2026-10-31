@@ -39,3 +39,7 @@ test-integration:
 # Build the docs site (CI-equivalent); `just docs serve` for live preview.
 docs cmd="build":
     uv run --group docs mkdocs {{cmd}} {{ if cmd == "build" { "--strict" } else { "" } }}
+
+# Audit every package pinned in uv.lock against OSV (uv's experimental `uv audit`).
+audit:
+    uv audit --frozen --preview-features audit-command
