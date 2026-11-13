@@ -4,12 +4,19 @@
 cache and prints its path to stdout (the path is the only stable, scriptable
 output of this CLI). ``which`` reports the jar ``OpenRocketInstance()``
 would use and where the resolution chain found it; its output format is
-informational, not a contract.
+informational, not a contract. Its exit code is: 0 when the jar it reports
+exists, and 4 when there is no jar to use (none found, or ``ORLAB_JAR``
+names a file that is not there). A missing engine is an environment fault,
+not a finding, and 4 is the org's code for one (heibench/.github AGENTS.md
+6.2; #71).
 """
 
 import argparse
 import logging
 import sys
+
+EXIT_ENVIRONMENT = 4
+"""No jar to run: an environment fault, not a verdict (#71)."""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -60,11 +67,11 @@ def main(argv: list[str] | None = None) -> int:
     except FileNotFoundError as e:
         print(f"error: {e}", file=sys.stderr)
         _installed_note()
-        return 1
-    note = "" if os.path.exists(path) else " — does not exist"
-    print(f"{path} (via {source}){note}")
+        return EXIT_ENVIRONMENT
+    exists = os.path.exists(path)
+    print(f"{path} (via {source}){'' if exists else ' — does not exist'}")
     _installed_note()
-    return 0
+    return 0 if exists else EXIT_ENVIRONMENT
 
 
 if __name__ == "__main__":

@@ -43,7 +43,9 @@ hit wins:
 
 `python -m orlab which` prints the jar this chain would pick and which step
 found it (the output is informational — script against `fetch`, not
-`which`).
+`which`). It exits 0 when that jar exists and 4 when there is no jar to use,
+including an `ORLAB_JAR` that names a missing file: a missing engine is an
+environment fault, not a finding.
 
 ## The cache
 

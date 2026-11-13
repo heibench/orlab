@@ -257,14 +257,17 @@ def test_cli_which_reports_path_and_source(hermetic, monkeypatch, capsys):
 
 def test_cli_which_flags_dangling_orlab_jar(hermetic, monkeypatch, capsys):
     """A dangling ORLAB_JAR resolves (env wins) but would fail at boot —
-    which must say so rather than report success silently."""
+    which must say so rather than report success silently: in the output,
+    and in the exit code, which was 0 until #71."""
     monkeypatch.setenv("ORLAB_JAR", "/gone/OpenRocket.jar")
-    assert main(["which"]) == 0
+    assert main(["which"]) == 4
     assert capsys.readouterr().out == "/gone/OpenRocket.jar (via ORLAB_JAR) — does not exist\n"
 
 
-def test_cli_which_miss_exit_1(hermetic, capsys):
-    assert main(["which"]) == 1
+def test_cli_which_miss_is_an_environment_fault(hermetic, capsys):
+    """No jar is an environment fault, exit 4 (org AGENTS.md 6.2), not 1,
+    which reads as a finding (#71)."""
+    assert main(["which"]) == 4
     captured = capsys.readouterr()
     assert captured.out == ""
     assert "No OpenRocket jar found" in captured.err
