@@ -14,6 +14,11 @@ reconstructed from the git log.
   fixes for the Pillow advisories open against the lock (GHSA-w889-685w-c8fh
   among them), requires 3.11. orlab's own dependencies are unchanged; Pillow
   reaches the lock only through the `examples` group's matplotlib.
+- `python -m orlab which` exits **4** when there is no jar to use, which the
+  org's exit table gives to an environment fault (#71). That covers no jar
+  found, which exited 1 (the code for a finding), and an `ORLAB_JAR` that
+  names a missing file, which printed `— does not exist` and exited 0. A
+  script branching on either old code needs updating. `fetch` is unchanged.
 
 ## [0.10.0] - 2026-09-06
 
