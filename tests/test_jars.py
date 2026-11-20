@@ -1,7 +1,9 @@
 """fetch_jar, the jar cache, default-jar resolution, and the CLI."""
 
 import hashlib
+import http.client
 import logging
+import urllib.error
 from pathlib import Path
 
 import pytest
@@ -239,12 +241,71 @@ def test_cli_fetch_prints_only_path(cache, monkeypatch, capsys):
     assert out == f"{cache / 'OpenRocket-99.99.jar'}\n"
 
 
-def test_cli_fetch_failure_exit_1_message_on_stderr(cache, monkeypatch, capsys):
+def test_cli_fetch_unpinned_without_digest_is_usage_64(cache, monkeypatch, capsys):
+    """No pin and no --sha256 is the caller's to fix: 64, not 1 (#88)."""
     _no_download(monkeypatch)
-    assert main(["fetch", "99.99"]) == 1
+    assert main(["fetch", "99.99"]) == 64
     captured = capsys.readouterr()
     assert captured.out == ""
     assert "error:" in captured.err and "sha256" in captured.err
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        [],
+        ["fetch", "--bogus"],
+        ["fetch", "24.12/../x"],  # characters a version string cannot hold
+        ["fetch", "99.99", "--sha256", "xyz"],
+        ["fetch", DEFAULT_VERSION, "--sha256", JAR_SHA],  # contradicts the pin
+    ],
+)
+def test_cli_usage_errors_exit_64(cache, argv, capsys):
+    """argparse's own errors exited 2, which the org table reads as could
+    not tell, and fetch's bad arguments exited 1 (#88)."""
+    try:
+        code = main(argv)
+    except SystemExit as e:
+        code = e.code
+    assert code == 64
+    assert capsys.readouterr().out == ""
+
+
+def test_cli_fetch_digest_mismatch_is_an_environment_fault(cache, monkeypatch, capsys):
+    _hook(monkeypatch, data=OTHER_BYTES)
+    assert main(["fetch", "99.99", "--sha256", JAR_SHA]) == 4
+    assert "sha256 mismatch" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "exc",
+    [
+        urllib.error.URLError("unreachable"),
+        urllib.error.HTTPError("u", 404, "Not Found", None, None),  # type: ignore[arg-type]
+        http.client.IncompleteRead(b"partial"),
+        TimeoutError("timed out"),
+    ],
+    ids=["unreachable", "404", "truncated", "timeout"],
+)
+def test_cli_fetch_download_failure_is_an_environment_fault(cache, monkeypatch, capsys, exc):
+    def _download(url, dest):
+        raise exc
+
+    monkeypatch.setattr(jars, "_download", _download)
+    assert main(["fetch", "99.99", "--sha256", JAR_SHA]) == 4
+    captured = capsys.readouterr()
+    assert captured.out == "" and "error:" in captured.err
+
+
+def test_cli_fetch_lets_an_unexpected_error_raise(cache, monkeypatch):
+    """A bug is neither usage nor environment; it keeps its traceback."""
+
+    def _download(url, dest):
+        raise RuntimeError("a bug")
+
+    monkeypatch.setattr(jars, "_download", _download)
+    with pytest.raises(RuntimeError, match="a bug"):
+        main(["fetch", "99.99", "--sha256", JAR_SHA])
 
 
 def test_cli_which_reports_path_and_source(hermetic, monkeypatch, capsys):

@@ -15,6 +15,11 @@ cache, verifies its sha256 against a pin shipped with orlab, and prints the
 jar's path — the path is the only stable, scriptable output of the CLI.
 After that, `OpenRocketInstance()` finds the cached jar on its own.
 
+`fetch` exits 0 with the path, 4 when the download or the cache fails or the
+jar does not match its digest (an environment fault, not a finding), and 64
+on a usage error, including a version orlab does not pin given without
+`--sha256`.
+
 The same thing in Python:
 
 ```python
