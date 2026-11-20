@@ -7,6 +7,8 @@ reconstructed from the git log.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-19
+
 ### Changed
 
 - `requires-python` raised to `>=3.11`. Python 3.10 reached end of life in
