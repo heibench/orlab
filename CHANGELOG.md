@@ -18,7 +18,15 @@ reconstructed from the git log.
   org's exit table gives to an environment fault (#71). That covers no jar
   found, which exited 1 (the code for a finding), and an `ORLAB_JAR` that
   names a missing file, which printed `— does not exist` and exited 0. A
-  script branching on either old code needs updating. `fetch` is unchanged.
+  script branching on either old code needs updating.
+- `python -m orlab fetch` exits **4** when the download or the cache fails,
+  a 404 included, or the jar does not match its digest, and **64** on a usage
+  error: a malformed version or digest, a `--sha256` that contradicts orlab's
+  pin, or a version orlab does not pin given without `--sha256`. All of these
+  exited 1, the code for a finding (#88). An argparse error, such as an
+  unknown option or no subcommand, exits 64 instead of argparse's 2, which the
+  org's table reads as could not tell. Any other exception now raises with
+  its traceback instead of printing `error:` and exiting 1.
 
 ## [0.10.0] - 2026-09-06
 
