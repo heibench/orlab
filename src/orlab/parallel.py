@@ -251,7 +251,15 @@ def _worker_run(index: int, task: dict, seed: int, worker_fn) -> tuple:
         else:
             payload = worker_fn(helper, sim, task)
         actual_seed = int(opts.getRandomSeed())
-        pickle.dumps(payload)  # fail HERE, with task context, not in the pool
+        try:  # fail HERE, with task context, not in the pool
+            pickle.dumps(payload)
+        except Exception as e:
+            # Python's own message names pickling on some versions only
+            # (3.12 and 3.13 say "Can't get local object"), so say it here (#91)
+            raise ValueError(
+                f"worker_fn returned a payload that is not picklable ({e}); "
+                "return plain-Python data"
+            ) from e
         return ("ok", index, payload, actual_seed, actual_seed != seed)
     except BaseException as e:
         return ("error", index, *_flatten_exception(e))

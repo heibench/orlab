@@ -28,6 +28,14 @@ reconstructed from the git log.
   org's table reads as could not tell. Any other exception now raises with
   its traceback instead of printing `error:` and exiting 1.
 
+### Fixed
+
+- A `SimulationPool` worker whose `worker_fn` returns a payload that cannot
+  be pickled now reports a `ValueError` saying so, like an unpicklable
+  `worker_fn` or task list already did. The `SimError` carried Python's own
+  message, which on Python 3.12 and 3.13 reads `Can't get local object …`
+  with no mention of pickling (#91).
+
 ## [0.10.0] - 2026-09-06
 
 ### Added

@@ -208,7 +208,11 @@ def test_on_error_abort(ork, jar):
 def test_unpicklable_payload_is_task_error_with_context(ork, jar):
     pool = _pool(ork, jar)
     study = pool.run([{}], worker_fn=_pool_stubs.unpicklable_payload_fn)
-    assert study.errors and "pickle" in study.errors[0].message.lower()
+    assert study.errors
+    err = study.errors[0]
+    # orlab's message, not Python's, which lacks "pickle" on 3.12 and 3.13 (#91)
+    assert err.error_type == "ValueError"
+    assert "worker_fn returned a payload that is not picklable" in err.message
 
 
 def test_worker_crash_aborts_with_partial(ork, jar):
